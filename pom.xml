@@ -27,6 +27,11 @@
 
 
     <properties>
+        <!--docker build 的镜像名前缀-->
+        <docker.registry.url>mall4cloud-docker</docker.registry.url>
+        <docker.registry.host>http://${docker.registry.url}:2375</docker.registry.host>
+        <docker.plugin.version>1.2.0</docker.plugin.version>
+
         <project.encoding>UTF-8</project.encoding>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
@@ -257,6 +262,51 @@
                     <encoding>${project.encoding}</encoding>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.2.2</version>
+<!--                <executions>-->
+<!--                    &lt;!&ndash;执行mvn package,即执行 mvn clean package docker:build&ndash;&gt;-->
+<!--                    <execution>-->
+<!--                        <id>build-image</id>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>build</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+                <configuration>
+                    <!--指定生成的镜像名 192.168.234.128:8080/user-service:1.0.0 -->
+                    <imageName>${docker.registry.url}/${project.artifactId}</imageName>
+                    <!--指定标签-->
+                    <imageTags>
+                        <imageTag>latest</imageTag>
+                    </imageTags>
+<!--                    &lt;!&ndash; 基础镜像jdk 1.8&ndash;&gt;-->
+<!--                    <baseImage>openjdk:11-jre-slim</baseImage>-->
+<!--                    &lt;!&ndash; 制作者提供本人信息 &ndash;&gt;-->
+<!--                    <maintainer>center-sept@163.com</maintainer>-->
+<!--                    &lt;!&ndash;切换到/ROOT目录 &ndash;&gt;-->
+<!--                    <workdir>/ROOT</workdir>-->
+<!--                    <cmd>["java", "-version"]</cmd>-->
+<!--                    <entryPoint>["java", "-jar", "${project.build.finalName}.jar"] </entryPoint>-->
+                    <!-- 指定 Dockerfile 路径 <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory> --><!--指定远程 docker api地址-->
+                    <dockerDirectory>${project.basedir}</dockerDirectory>
+                    <dockerHost>${docker.registry.host}</dockerHost>
+                    <!-- 这里是复制 jar 包到 docker 容器指定目录配置 -->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <!--用于指定需要复制的根目录，${project.build.directory}表示target目 录-->
+                            <directory>${project.build.directory}</directory>
+                            <!--用于指定需要复制的文件。${project.build.finalName}.jar指的是打包 后的jar包文件。-->
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
+
         </plugins>
         <resources>
             <resource>
@@ -275,6 +325,7 @@
                 <profiles.active>dev</profiles.active>
                 <!--https://github.com/alibaba/nacos/issues/3460  默认的命名空间不要去设置namespace -->
                 <nacos.namespace/>
+                <config.server-addr>mall4cloud-nacos:8848</config.server-addr>
             </properties>
             <activation>
                 <!-- 默认环境 -->

@@ -12,6 +12,11 @@
     <artifactId>mall4cloud-gateway</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <java.version>1.8</java.version>
+
+    </properties>
+
     <dependencies>
         <!--注册中心客户端-->
         <dependency>
@@ -56,6 +61,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
